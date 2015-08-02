@@ -824,6 +824,8 @@ main(int argc, char * * argv)
 	char * cp;
 	unsigned short daemonize = 0;
 	int i;
+	sigset_t enbsig;
+	sigset_t inhsig;
 
 	daemonInit(&dmn);
 	setProgram(&dmn, argv[0]);
@@ -993,6 +995,13 @@ main(int argc, char * * argv)
 	umask(0002);
 	incarcerate(&dmn);
 	changeIdentity(&dmn);
+
+	sigprocmask(SIG_SETMASK, NULL, &inhsig);
+	sigaddset(&inhsig, SIGHUP),
+	sigaddset(&inhsig, SIGQUIT),
+	sigaddset(&inhsig, SIGTERM),
+	sigaddset(&inhsig, SIGALRM),
+	sigprocmask(SIG_SETMASK, &inhsig, &enbsig);
 	actions = ACTION_RESTORE;
 	signal(SIGHUP, bailout);
 	signal(SIGQUIT, bailout);
@@ -1001,15 +1010,24 @@ main(int argc, char * * argv)
 	if (period)
 		timepump(SIGUSR1);
 
-	for (;;)
+	for (;;) {
+		while (!(actions & (ACTION_RESTORE |
+				    ACTION_SAVE | ACTION_STOP)))
+			sigsuspend(&enbsig);
+
+		sigprocmask(SIG_SETMASK, &enbsig, NULL);
+
 		if (actions & ACTION_RESTORE)
 			restoreclock();
-		else if (actions & ACTION_SAVE)
+
+		if (actions & ACTION_SAVE)
 			saveclock();
-		else if (actions & ACTION_STOP)
+
+		if (actions & ACTION_STOP)
 			break;
-		else
-			pause();
+
+		sigprocmask(SIG_SETMASK, &inhsig, NULL);
+		}
 
 	myexit(0);
 	return 0;
