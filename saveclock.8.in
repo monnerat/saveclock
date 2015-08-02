@@ -1,0 +1,81 @@
+.TH saveclock 8 "Jul 12, 2015"
+.SH NAME
+saveclock \- Restores/saves system clock from/to a file.
+.SH SYNOPSIS
+.B saveclock
+.RB [ \-c\ \fIclock_file\fP ]
+.RB [ \-i\ \fIsave_period_seconds\fP ]
+.RB [ \-f ]
+.RB [ \-e ]
+.RB [ \-n ]
+.RB [ \-d ]
+.RB [ \-l\ \fIlock_file\fP ]
+.RB [ \-p\ \fIpid_file\fP ]
+.RB [ \-u\ \fIuser\fP ]
+.RB [ \-g\ \fIgroup\fP ]
+.RB [ \-j\ \fIjail_directory\fP ]
+.RB [ \-h\ \fIworking_directory\fP ]
+.RB { save | restore }
+.SH DESCRIPTION
+Saveclock is a system utility whose role is to restore and/or save the system
+clock from/to a disk file. It can be used interactively (when one of the
+\fBsave\fP or \fBrestore\fP action is specified) to execute a single action.
+.P
+However its main usage is as a daemon: in this mode, it restores the system
+clock from the file upon start-up, periodically saves it back and finally saves
+the system clock upon shut-down.
+.P
+This is particulary useful on systems without a working hardware RTC clock.
+It avoids some problems that may be caused by a system believing it has
+travelled in time back to 1970, by making sure the system clock is at least
+as high as the last time it has been saved.
+.P
+In order to compensate time drifting introduced by this method, it is
+recommended to use some "real" time source (NTP) synchronizing daemon in
+complement to saveclock.
+.SH OPTIONS
+.TP
+\fB-c\fR \fIclock_file\fR
+Specifies the path of the file used as storage to save/restore the system clock.
+Default: @STORAGEDIR@/lastclock.
+.TP
+\fB-i\fR \fIsave_period\fR
+Defines the auto-save time interval. Setting it to zero disables timed
+auto-save. Default: 60.
+.TP
+\fB-f\fR
+Allow restoring the system clock even if the saved timestamp is before the
+current system clock value.
+.TP
+\fB-e\fR
+Log to standard error output.
+.TP
+\fB-n\fR
+Do not log to system log. This is the default for non-daemon one-shot actions.
+.TP
+\fB-d\fR
+Daemonize. Detach process from the current process group.
+.TP
+\fB-l\fR \fIlock_file\fR
+Daemon lock file path. Unused if not daemonized. Default: @LOCKDIR@/saveclock.
+.TP
+\fB-p\fR \fIpid_file\fR
+Daemon process id file. Unused if not daemonized. Default: @RUNDIR@/saveclock.
+.TP
+\fB-u\fR \fIuser\fR
+Specifies the user name or id running the daemon. Default: current user.
+.TP
+\fB-g\fR \fIgroup\fR
+Specifies the group name or id running the daemon. If not specified, it is
+unchanged unless \fB-u\fR is given, in which case the group is set from the
+user default group.
+.TP
+\fB-j\fR \fIjail_directory\fR
+If specified, the file system root of the process is set to this path.
+.TP
+\fB-h\fR \fIworking_directory\fR
+If specified, the process working directory is set to this path.
+.SH FILES
+@STORAGEDIR@/lastclock.
+.SH AUTHORS
+Patrick Monnerat <pm@datasphere.ch>.

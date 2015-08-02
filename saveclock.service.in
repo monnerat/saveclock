@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore/save system clock from/to a file
+Before=chronyd.service ntpdate.service sntp.service ntpd.service
+
+[Service]
+Type=simple
+Environment="FLAGS="
+EnvironmentFile=-@SYSCONFDIR@/sysconfig/saveclock
+ExecStart=@SBINDIR@/saveclock $FLAGS
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

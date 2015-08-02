@@ -1,0 +1,34 @@
+  Saveclock is a  daemon that restores the system clock from a file at start-up,
+then periodically saves it back to the same file. This is particularly useful on
+systems without a working hardware RTC clock, avoiding problems that may be
+caused by a system believing it is still in 1970.
+  The save period as well as the clock file can be specified on the
+command line.
+  Unlike fake-hwclock that features the same function, saveclock is not based
+on shell scripts, but is a C-language daemon.
+
+
+Build an installation tarball from a git clone.
+
+1. $ git clone https://github.com/monnerat/saveclock.git
+2. $ cd saveclock
+3. $ ./buildconf
+4. $ ./configure --prefix=/usr
+5. $ make dist
+
+Then find the tarball saveclock-*.tar.gz in the current directory.
+
+
+Installation from a distribution tarball:
+
+1. Download, gunzip and untar
+2. $ cd saveclock-*
+3. $ ./configure --prefix=/usr/
+4. $ make
+5. $ sudo make install
+6. Enable and start daemon
+
+
+Building an rpm package from a distribution tarball.
+
+1. rpmbuild -ta saveclock-*.tar.gz

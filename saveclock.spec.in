@@ -1,0 +1,144 @@
+%global use_systemd	0
+%if 0%{?fedora} >= 16
+%global use_systemd	1
+%endif
+
+Name:			saveclock
+Summary:		Restore/save system clock from/to a file
+Version:		@VERSION@
+Release:		1%{?dist}
+URL:			https://github.com/monnerat/saveclock
+Source:			%{name}-%{version}.tar.gz
+License:		MIT
+Group:			System Environment/Daemons
+%if %{use_systemd}
+BuildRequires:		systemd-units
+Requires(post):		systemd-units
+Requires(post):		systemd-sysv
+Requires(preun):	systemd-units
+Requires(postun):	systemd-units
+%endif
+BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+  This daemon restores the system clock from a file at start-up, then
+periodically saves it back to the same file. This is particularly useful on
+systems without a working hardware RTC clock, avoiding problems that may be
+caused by a system believing it is still in 1970.
+  The save period as well as the clock file can be specified on the
+command line.
+
+
+#-------------------------------------------------------------------------------
+%prep
+#-------------------------------------------------------------------------------
+
+%setup -q
+
+
+#-------------------------------------------------------------------------------
+%build
+#-------------------------------------------------------------------------------
+
+%configure
+make %{?_smp_mflags}
+
+
+#-------------------------------------------------------------------------------
+%install
+#-------------------------------------------------------------------------------
+
+rm -rf "${RPM_BUILD_ROOT}"
+
+make DESTDIR="${RPM_BUILD_ROOT}" install
+
+%if %{use_systemd}
+mkdir -p "${RPM_BUILD_ROOT}%{_unitdir}/"
+install -p -m 0644 %{name}.service "${RPM_BUILD_ROOT}%{_unitdir}/"
+%else
+mkdir -p "${RPM_BUILD_ROOT}/%{_initrddir}"
+install -p -m 755 %{name}.init "${RPM_BUILD_ROOT}/%{_initrddir}/%{name}"
+%endif
+
+mkdir -p "${RPM_BUILD_ROOT}/%{_sysconfdir}/sysconfig"
+install -p -m 644 %{name}.sysconfig					\
+		"${RPM_BUILD_ROOT}/%{_sysconfdir}/sysconfig/%{name}"
+
+
+#-------------------------------------------------------------------------------
+%clean
+#-------------------------------------------------------------------------------
+
+rm -rf "${RPM_BUILD_ROOT}"
+
+
+#-------------------------------------------------------------------------------
+%post
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+if [ "${1}" = 1 ]
+then	/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+%else
+/sbin/chkconfig --add %{name}
+%endif
+
+
+#-------------------------------------------------------------------------------
+%preun
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+if [ "${1}" = 0 ]
+then	/bin/systemctl --no-reload disable %{name}.service >/dev/null 2>&1 || :
+	/bin/systemctl stop %{name}.service >/dev/null 2>&1 || :
+fi
+%else
+if [ "${1}" = 0 ]
+then	/sbin/service %{name} stop > /dev/null 2>&1 || :
+	/sbin/chkconfig --del %{name}
+fi
+%endif
+
+
+#-------------------------------------------------------------------------------
+%postun
+#-------------------------------------------------------------------------------
+
+%if %{use_systemd}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "${1}" != 0 ]
+then	/bin/systemctl try-restart %{name}.service >/dev/null 2>&1 || :
+fi
+%else
+if [ "${1}" != 0 ]
+then	/sbin/service %{name} condrestart > /dev/null 2>&1 || :
+fi
+%endif
+
+
+#-------------------------------------------------------------------------------
+%files
+#-------------------------------------------------------------------------------
+
+%defattr(-, root, root, -)
+%doc AUTHORS COPYING
+%doc %{_mandir}/*/*
+%{_sbindir}/*
+%dir %{_sharedstatedir}/%{name}
+%ghost %{_sharedstatedir}/%{name}/*
+%config(noreplace) %{_sysconfdir}/sysconfig/%{name}
+%if %{use_systemd}
+%{_unitdir}/*
+%else
+%{_initrddir}/*
+%endif
+
+
+#-------------------------------------------------------------------------------
+%changelog
+#-------------------------------------------------------------------------------
+
+* Sun Jul 12 2015 Patrick Monnerat <pm@datasphere.ch> 0.1-1
+- Initial rpm packaging.

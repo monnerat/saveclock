@@ -1,0 +1,14 @@
+#	-c <clockfile>	Path of saved clock file (default:
+#			@STORAGEDIR@/lastclock).
+#	-e		Log to stderr.
+#	-f		Reload clock even if in the past.
+#	-g <group/gid>	Group owning the daemon.
+#	-h <homedir>	Working directory (default: current).
+#	-i <seconds>	Auto-save period (default: 60). 0 disables auto-save.
+#	-j <jail>	Jail (i.e.: root) directory.
+#	-l <lockfile>	Lock file path (default: @LOCKDIR@/saveclock).
+#	-n		Do not log to syslog.
+#	-p <pidfile>	Process id file path (default: @RUNDIR@/saveclock).
+#	-u <user/uid>	User owning the daemon.
+
+FLAGS=
