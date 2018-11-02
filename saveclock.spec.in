@@ -11,6 +11,7 @@ URL:			https://github.com/monnerat/saveclock
 Source:			%{name}-%{version}.tar.gz
 License:		MIT
 Group:			System Environment/Daemons
+BuildRequires:		gcc
 %if %{use_systemd}
 BuildRequires:		systemd-units
 Requires(post):		systemd-units
@@ -139,6 +140,9 @@ fi
 #-------------------------------------------------------------------------------
 %changelog
 #-------------------------------------------------------------------------------
+
+* Fri Nov  2 2018 Patrick Monnerat <patrick@monnerat.net> 0.2-1
+- Build requires C compiler.
 
 * Sun Jul 12 2015 Patrick Monnerat <pm@datasphere.ch> 0.1-1
 - Initial rpm packaging.

@@ -1,5 +1,5 @@
 AC_PREREQ([2.57])
-AC_INIT([saveclock], [0.1])
+AC_INIT([saveclock], [0.2])
 AC_CONFIG_SRCDIR([saveclock.c])
 AM_INIT_AUTOMAKE
 
