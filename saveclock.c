@@ -1,6 +1,6 @@
 /*
  *	saveclock - Save/restore clock from file.
- *	Copyright (C) 2015 Patrick Monnerat <pm@datasphere.ch>
+ *	Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  *
  *	To be used with NTP when no hardware clock is available.
  *
@@ -128,7 +128,7 @@ setGroup(daemon_t * dp, const char * gid_or_name)
 	int err;
 	char buf[1024];
 
-	if (gid_or_name || !gid_or_name[0])
+	if (!gid_or_name || !gid_or_name[0])
 		setString(&dp->group, NULL);
 	else if (geteuid()) {
 		errno = EPERM;

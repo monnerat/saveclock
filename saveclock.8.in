@@ -78,4 +78,4 @@ If specified, the process working directory is set to this path.
 .SH FILES
 @STORAGEDIR@/lastclock.
 .SH AUTHORS
-Patrick Monnerat <pm@datasphere.ch>.
+Patrick Monnerat <patrick@monnerat.net>.
